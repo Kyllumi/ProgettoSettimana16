@@ -10,10 +10,7 @@ use DB\DB_PDO as DB;
 $PDOConn = DB::getInstance($config);
 $conn = $PDOConn->getConnection(); //Mi connetto
 
-
 $userDTO = new UserDTO($conn);
-$res = $userDTO->getAll();
-
 
 if (isset($_REQUEST['firstname'])) {
     $firstname = $_REQUEST['firstname'];
@@ -29,13 +26,39 @@ if (isset($_REQUEST['firstname'])) {
         'password' => $password,
         'admin' => $admin
     ]);
-
-    header("Location: index.php");
-    exit();
 }
 
+if (isset($_REQUEST['id']) && $_REQUEST['action'] == 'edit') {
+    $firstname = $_REQUEST['firstname'];
+    $lastname = $_REQUEST['lastname'];
+    $email = $_REQUEST['email'];
+    $password = $_REQUEST['password'];
+    $admin = $_REQUEST['admin'];
+    $id = intval($_REQUEST['id']);
 
+    echo $id;
+    var_dump($firstname);
 
+    // $res = $userDTO->updateUser([
+    //     'id' => $id,
+    //     'firstname' => $firstname,
+    //     'lastname' => $lastname,
+    //     'email' => $email,
+    //     'password' => $password,
+    //     'admin' => $admin
+    // ]);
+}
+
+if (isset($_REQUEST['id']) && $_REQUEST['action'] == 'delete') {
+    $id = intval($_REQUEST['id']);
+
+    $res = $userDTO->deleteUser($id);
+
+    header('Location: index.php');
+    exit;
+}
+
+$res = $userDTO->getAll();
 ?>
 
 
@@ -48,6 +71,7 @@ if (isset($_REQUEST['firstname'])) {
     <title>Progetto Settimana 16</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
 
 <body>
@@ -102,17 +126,23 @@ if (isset($_REQUEST['firstname'])) {
                             <td>
                                 <?= $record["password"] ?>
                             </td>
-                            <td>
-                                <?= $record["admin"] ?>
+                            <td class="text-center align-middle">
+                                <?php if ($record["admin"] == 0): ?>
+                                    <i class="fas fa-circle text-danger"></i>
+                                <?php else: ?>
+                                    <i class="fas fa-circle text-success"></i>
+                                <?php endif; ?>
                             </td>
                             <td>
-                                <a href="user.php?id=<?= $record["id"] ?>" class="btn btn-primary">Modifica</a>
-                                <a href="delete.php?id=<?= $record["id"] ?>" class="btn btn-danger">Elimina</a>
+                                <a href="index.php?action=edit&id=<?= $record["id"] ?>" class="btn btn-primary"
+                                    data-bs-toggle="modal" data-bs-target="#modificaUtente">Modifica</a>
+                                <a href="index.php?action=delete&id=<?= $record["id"] ?>" class="btn btn-danger">Elimina</a>
                             </td>
                         </tr>
                         <?php
                     }
                 }
+
                 ?>
 
             </tbody>
@@ -129,7 +159,7 @@ if (isset($_REQUEST['firstname'])) {
 
 
 
-<!-- Modal -->
+<!-- Modali -->
 <div class="modal fade" id="creaUtente" tabindex="-1" aria-labelledby="creaUtenteLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -170,6 +200,96 @@ if (isset($_REQUEST['firstname'])) {
                 </form>
             </div>
 
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modificaUtente" tabindex="-1" aria-labelledby="modificaUtenteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modificaUtente
+    Label">Gestione Utenti</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="index.php">
+                    <div class="mb-3">
+                        <label for="firstname" class="form-label">Nome</label>
+                        <input name="firstname" type="text" class="form-control" id="firstname"
+                            aria-describedby="firstname">
+                    </div>
+                    <div class="mb-3">
+                        <label for="lastname" class="form-label">Cognome</label>
+                        <input name="lastname" type="text" class="form-control" id="lastname"
+                            aria-describedby="lastname">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input name="email" type="email" class="form-control" id="email" aria-describedby="emailHelp">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input name="password" type="password" class="form-control" id="password">
+                    </div>
+                    <div class="mb-3">
+                        <label for="admin" class="form-label">Admin</label>
+                        <input name="admin" type="number" class="form-control" id="admin" aria-describedby="admin"
+                            min="0" max="1">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                        <a href="index.php?action=edit&id=<?= $record["id"] ?>" type="submit"
+                            class="btn btn-primary">Modifica</a>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Modale -->
+<div class="modal fade" id="modificaUtente" tabindex="-1" aria-labelledby="modificaUtenteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modificaUtente
+    Label">Gestione Utenti</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="index.php">
+                    <div class="mb-3">
+                        <label for="firstname" class="form-label">Nome</label>
+                        <input name="firstname" type="text" class="form-control" id="firstname"
+                            aria-describedby="firstname">
+                    </div>
+                    <div class="mb-3">
+                        <label for="lastname" class="form-label">Cognome</label>
+                        <input name="lastname" type="text" class="form-control" id="lastname"
+                            aria-describedby="lastname">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input name="email" type="email" class="form-control" id="email" aria-describedby="emailHelp">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input name="password" type="password" class="form-control" id="password">
+                    </div>
+                    <div class="mb-3">
+                        <label for="admin" class="form-label">Admin</label>
+                        <input name="admin" type="number" class="form-control" id="admin" aria-describedby="admin"
+                            min="0" max="1">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                        <a href="index.php?action=edit&id=<?= $record["id"] ?>" type="submit"
+                            class="btn btn-primary">Modifica</a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>

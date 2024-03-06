@@ -34,7 +34,6 @@ class UserDTO
     }
     public function saveUser(array $user)
     {
-        var_dump($user);
         $sql = "INSERT INTO users (firstname, lastname, email, password, admin) VALUES (:firstname, :lastname, :email, :password, :admin)";
         $stm = $this->conn->prepare($sql);
         $stm->execute(['firstname' => $user['firstname'], 'lastname' => $user['lastname'], 'email' => $user['email'], 'password' => $user['password'], 'admin' => $user['admin']]);
@@ -42,14 +41,16 @@ class UserDTO
     }
     public function updateUser(array $user)
     {
-        $sql = "UPDATE users SET name = :nome, lastname = :cognome, email = :email, password = :password, admin = :admin WHERE id = :id";
+        var_dump($user);
+        $sql = "UPDATE users SET firstname = :firstname, lastname = :lastname, email = :email, password = :password, admin = :admin WHERE id = :id";
         $stm = $this->conn->prepare($sql);
-        $stm->execute(['nome' => $user['name'], 'cognome' => $user['lastname'], 'email' => $user['email'], 'password' => $user['password'], 'admin' => $user['admin'], 'id' => $user['id']]);
+        $stm->execute(['firstname' => $user['firstname'], 'lastname' => $user['lastname'], 'email' => $user['email'], 'password' => $user['password'], 'admin' => $user['admin']]);
         return $stm->rowCount();
     }
     public function deleteUser(int $id)
     {
-        $sql = "DELETE users WHERE id = :id";
+        var_dump($id);
+        $sql = "DELETE FROM users WHERE id = :id";
         $stm = $this->conn->prepare($sql);
         $stm->execute(['id' => $id]);
         return $stm->rowCount();
