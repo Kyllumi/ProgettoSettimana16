@@ -1,31 +1,38 @@
 <?php
-    // PDO -> Php Data Object
-    require_once('database.php');
-    require_once('db_pdo.php');
-    $config = require_once('config.php');
+// PDO -> Php Data Object
+require_once('database.php');
+require_once('user.php');
+require_once('db_pdo.php');
+$config = require_once('config.php');
 
-    use DB\DB_PDO as DB;
+use DB\DB_PDO as DB;
 
-    $PDOConn = DB::getInstance($config); 
-    $conn = $PDOConn->getConnection();
+$PDOConn = DB::getInstance($config);
+$conn = $PDOConn->getConnection(); //Mi connetto
 
 
-    
-    
+$userDTO = new UserDTO($conn);
+$res = $userDTO->getAll();
 
-    // $id = 0;
-    // $name = 'Giorno';
-    // $lastname = 'Giovanna';
 
-    // $userDTO = new UserDTO($conn);
-    // $res = $userDTO->getAll();
-    // //$res = $userDTO->getUserByID(2);
+if (isset($_REQUEST['firstname'])) {
+    $firstname = $_REQUEST['firstname'];
+    $lastname = $_REQUEST['lastname'];
+    $email = $_REQUEST['email'];
+    $password = $_REQUEST['password'];
+    $admin = $_REQUEST['admin'];
 
-    // if($res) { // Controllo se ci sono dei dati nella variabile $res
-    //     foreach($res as $row) {
-    //         print_r($row);
-    //     }
-    // }
+    $res = $userDTO->saveUser([
+        'firstname' => $firstname,
+        'lastname' => $lastname,
+        'email' => $email,
+        'password' => $password,
+        'admin' => $admin
+    ]);
+
+    header("Location: index.php");
+    exit();
+}
 
 
 
@@ -53,24 +60,61 @@
         </div>
     </nav>
     <h1 class="text-center my-4">Pannello di amministrazione</h1>
+    <div class="d-flex justify-content-center my-4">
 
+        <a href="create.php" class="btn btn-success w-25" data-bs-toggle="modal" data-bs-target="#creaUtente">
+            Aggiungi utenti
+        </a>
+
+    </div>
     <div class="container">
         <table class="table table-striped table-hover">
             <thead>
                 <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">First</th>
-                    <th scope="col">Last</th>
-                    <th scope="col">Handle</th>
+                    <th scope="col">ID</th>
+                    <th scope="col">Nome</th>
+                    <th scope="col">Cognome</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Password</th>
+                    <th scope="col">Admin</th>
+                    <th scope="col">Azioni</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <th scope="row">1</th>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>@mdo</td>
-                </tr>
+
+                <?php
+                if ($res) {
+                    foreach ($res as $record) {
+                        ?>
+                        <tr>
+                            <td>
+                                <?= $record["id"] ?>
+                            </td>
+                            <td>
+                                <?= $record["firstname"] ?>
+                            </td>
+                            <td>
+                                <?= $record["lastname"] ?>
+                            </td>
+                            <td>
+                                <?= $record["email"] ?>
+                            </td>
+                            <td>
+                                <?= $record["password"] ?>
+                            </td>
+                            <td>
+                                <?= $record["admin"] ?>
+                            </td>
+                            <td>
+                                <a href="user.php?id=<?= $record["id"] ?>" class="btn btn-primary">Modifica</a>
+                                <a href="delete.php?id=<?= $record["id"] ?>" class="btn btn-danger">Elimina</a>
+                            </td>
+                        </tr>
+                        <?php
+                    }
+                }
+                ?>
+
             </tbody>
         </table>
     </div>
@@ -82,3 +126,50 @@
 </body>
 
 </html>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="creaUtente" tabindex="-1" aria-labelledby="creaUtenteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="creaUtente
+    Label">Gestione Utenti</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="index.php">
+                    <div class="mb-3">
+                        <label for="firstname" class="form-label">Nome</label>
+                        <input name="firstname" type="text" class="form-control" id="firstname"
+                            aria-describedby="firstname">
+                    </div>
+                    <div class="mb-3">
+                        <label for="lastname" class="form-label">Cognome</label>
+                        <input name="lastname" type="text" class="form-control" id="lastname"
+                            aria-describedby="lastname">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input name="email" type="email" class="form-control" id="email" aria-describedby="emailHelp">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input name="password" type="password" class="form-control" id="password">
+                    </div>
+                    <div class="mb-3">
+                        <label for="admin" class="form-label">Admin</label>
+                        <input name="admin" type="number" class="form-control" id="admin" aria-describedby="admin"
+                            min="0" max="1">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                        <button type="submit" class="btn btn-primary">Crea</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>

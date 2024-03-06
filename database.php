@@ -28,7 +28,8 @@
         firstname VARCHAR(255) NOT NULL, 
         lastname VARCHAR(255) NOT NULL, 
         email VARCHAR(100) NOT NULL UNIQUE,
-        password VARCHAR(255) NOT NULL 
+        password VARCHAR(255) NOT NULL,
+        admin BOOLEAN NOT NULL DEFAULT 0
     )';
     if(!$mysqli->query($sql)) { die($mysqli->connect_error); }
 
@@ -38,8 +39,8 @@
     if($res->num_rows === 0) { 
         $password = password_hash('giogio' , PASSWORD_DEFAULT);
         // Inserisco dati in una tabella
-        $sql = 'INSERT INTO users (firstname, lastname, email, password) 
-            VALUES ("Giorno", "Giovanna", "giogio@mail.com", "'.$password.'");';
+        $sql = 'INSERT INTO users (firstname, lastname, email, password, admin) 
+            VALUES ("Giorno", "Giovanna", "giogio@mail.com", "'.$password.'", 1);';
         if(!$mysqli->query($sql)) { echo($mysqli->connect_error); }
         else { echo 'Record aggiunto con successo!!!';}
     }
