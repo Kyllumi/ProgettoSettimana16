@@ -1,11 +1,12 @@
 <?php
-// PDO -> Php Data Object
 require_once('database.php');
 require_once('user.php');
 require_once('db_pdo.php');
 $config = require_once('config.php');
 
 use DB\DB_PDO as DB;
+
+session_start();
 
 $PDOConn = DB::getInstance($config);
 $conn = $PDOConn->getConnection(); //Mi connetto
@@ -31,14 +32,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (isset($_REQUEST['id']) && $_REQUEST['action'] == 'update') {
         $id = intval($_REQUEST['id']);
-        // Recupera i dati dell'utente dalla richiesta POST
         $firstname = $_POST['firstnameUp'];
         $lastname = $_POST['lastnameUp'];
         $email = $_POST['emailUp'];
         $password = $_POST['passwordUp'];
         $admin = $_POST['adminUp'];
-
-        echo $firstname . ' ' . $lastname . ' ' . $email . ' ' . $password . ' ' . $admin;
 
         $res = $userDTO->updateUser([
             'id' => $id,
@@ -48,10 +46,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             'password' => $password,
             'admin' => $admin
         ]);
-
-        // Redirect alla pagina principale dopo l'aggiornamento
-        // header('Location: index.php');
-        // exit;
     }
 
 }
@@ -64,6 +58,8 @@ if (isset($_GET['id']) && $_GET['action'] == 'delete') {
     header('Location: index.php');
     exit;
 }
+
+var_dump($_SESSION['username']);
 
 $res = $userDTO->getAll();
 ?>

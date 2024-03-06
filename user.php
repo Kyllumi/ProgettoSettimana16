@@ -65,7 +65,7 @@ class UserDTO
             echo "An error occurred: " . $e->getMessage();
         }
     }
-    
+
     public function deleteUser(int $id)
     {
         var_dump($id);
