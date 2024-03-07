@@ -13,55 +13,62 @@ $conn = $PDOConn->getConnection(); //Mi connetto
 
 $userDTO = new UserDTO($conn);
 
-if ($_SESSION['userLogin']['admin'] == 1) {
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        if (isset($_POST['firstname'])) {
-            $firstname = $_POST['firstname'];
-            $lastname = $_POST['lastname'];
-            $email = $_POST['email'];
-            $password = $_POST['password'];
-            $admin = $_POST['admin'];
+// Controllo se l'utente ha effettuato il login
+if (isset($_SESSION['userLogin'])) {
+    // Controllo se l'utente è un admin
+    if ($_SESSION['userLogin']['admin'] == 1) {
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            if (isset($_POST['firstname'])) {
+                $firstname = $_POST['firstname'];
+                $lastname = $_POST['lastname'];
+                $email = $_POST['email'];
+                $password = $_POST['password'];
+                $admin = $_POST['admin'];
 
-            $res = $userDTO->saveUser([
-                'firstname' => $firstname,
-                'lastname' => $lastname,
-                'email' => $email,
-                'password' => $password,
-                'admin' => $admin
-            ]);
+                $res = $userDTO->saveUser([
+                    'firstname' => $firstname,
+                    'lastname' => $lastname,
+                    'email' => $email,
+                    'password' => $password,
+                    'admin' => $admin
+                ]);
+            }
+
+            if (isset($_REQUEST['id']) && $_REQUEST['action'] == 'update') {
+                $id = intval($_REQUEST['id']);
+                $firstname = $_POST['firstnameUp'];
+                $lastname = $_POST['lastnameUp'];
+                $email = $_POST['emailUp'];
+                $password = $_POST['passwordUp'];
+                $admin = $_POST['adminUp'];
+
+                $res = $userDTO->updateUser([
+                    'id' => $id,
+                    'firstname' => $firstname,
+                    'lastname' => $lastname,
+                    'email' => $email,
+                    'password' => $password,
+                    'admin' => $admin
+                ]);
+            }
+        }
+        if (isset($_GET['id']) && $_GET['action'] == 'delete') {
+            $id = intval($_GET['id']);
+
+            $res = $userDTO->deleteUser($id);
+
+            header('Location: index.php');
+            exit;
         }
 
-        if (isset($_REQUEST['id']) && $_REQUEST['action'] == 'update') {
-            $id = intval($_REQUEST['id']);
-            $firstname = $_POST['firstnameUp'];
-            $lastname = $_POST['lastnameUp'];
-            $email = $_POST['emailUp'];
-            $password = $_POST['passwordUp'];
-            $admin = $_POST['adminUp'];
-
-            $res = $userDTO->updateUser([
-                'id' => $id,
-                'firstname' => $firstname,
-                'lastname' => $lastname,
-                'email' => $email,
-                'password' => $password,
-                'admin' => $admin
-            ]);
-        }
-    }
-    if (isset($_GET['id']) && $_GET['action'] == 'delete') {
-        $id = intval($_GET['id']);
-
-        $res = $userDTO->deleteUser($id);
-
-        header('Location: index.php');
+        $res = $userDTO->getAll();
+    } else {
+        header('Location: notAdminIndex.php');
         exit;
     }
 
-    $res = $userDTO->getAll();
 } else {
-    header('Location: notAdminIndex.php');
-    exit;
+    header('Location: login.php');
 }
 
 
